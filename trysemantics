@@ -1,0 +1,15 @@
+#!/bin/bash
+
+make
+
+for i in {0..10}
+do
+    echo "test$i.asm"
+    ./runme tests/test$i.uC testout.out
+    python3 RiscSim/driver.py outputs/test$i.asm > proper.out < input_test_asm
+    python3 RiscSim/driver.py testout.out > interp_test.out < input_test_asm
+    diff proper.out interp_test.out
+done
+
+rm proper.out interp_test.out
+

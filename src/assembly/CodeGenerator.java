@@ -237,14 +237,24 @@ public class CodeGenerator extends AbstractASTVisitor<CodeObject> {
         }
         co.code.addAll(expr.code);
 
-        //Step 1a: if child is an lval, add a load to get the data 
+        //Step 1a: if child is an lval, add a load to get the data
 		if (expr.lval == true) {
-            expr_reg = generateTemp(Scope.Type.INT);
-            co.code.add(new Lw(expr_reg, expr.temp, "0"));
+            if (expr.getType() == Scope.Type.FLOAT) {
+                expr_reg = generateTemp(Scope.Type.FLOAT);
+                co.code.add(new Flw(expr_reg, expr.temp, "0"));
+            } else {
+                expr_reg = generateTemp(Scope.Type.INT);
+                co.code.add(new Lw(expr_reg, expr.temp, "0"));
+            }
 		}
 
-        //Step 2: generate instruction to perform unary operation (don't forget to generate right type of op)
-        Instruction i = new Neg(expr_reg, generateTemp(Scope.Type.INT)); // only using int during this phase
+        //Step 2: generate instruction to perform unary operation
+        Instruction i;
+        if (node.getType() == Scope.Type.FLOAT) {
+            i = new FNeg(expr_reg, generateTemp(Scope.Type.FLOAT));
+        } else {
+            i = new Neg(expr_reg, generateTemp(Scope.Type.INT));
+        }
         co.code.add(i);
 
 		co.lval = false; //co holds an rval -- data

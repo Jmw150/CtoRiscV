@@ -839,16 +839,16 @@ class FmoviInstruction(FORInstruction) :
 
     @property
     def dsttype(self) :
-        return float
+        return int
 
 #move integer to floating point
 @concreteInstruction('IMOVF.S')
-class ImovfInstruction(FORInstruction) :
+class ImovfInstruction(IORInstruction) :
     def funcExec(self, src1) :
         return float(src1)
 
     @property
-    def srctype(self) :
+    def dsttype(self) :
         return float
 
 #read integer from stdin

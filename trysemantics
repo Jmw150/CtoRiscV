@@ -1,15 +1,60 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-make
+set -euo pipefail
 
-for i in {0..10}
-do
-    echo "test$i.asm"
-    ./runme tests/test$i.uC testout.out
-    python3 RiscSim/driver.py outputs/test$i.asm > proper.out < input_test_asm
-    python3 RiscSim/driver.py testout.out > interp_test.out < input_test_asm
-    diff proper.out interp_test.out
+tmpdir=$(mktemp -d)
+trap 'rm -rf "$tmpdir"' EXIT
+
+normalize_sim_output() {
+    local input_file=$1
+    local output_file=$2
+    grep -v '^Using default machine configuration' "$input_file" \
+        | grep -v '^Execution time:' > "$output_file"
+}
+
+run_simulator() {
+    local asm_file=$1
+    local output_file=$2
+    python3 RiscSim/driver.py "$asm_file" < input_test_asm > "$output_file"
+}
+
+make compiler >/dev/null
+
+failures=0
+
+for test_file in tests/test*.uC; do
+    test_name=$(basename "$test_file" .uC)
+    generated_asm="$tmpdir/$test_name.asm"
+    generated_raw="$tmpdir/$test_name.generated.raw"
+    generated_norm="$tmpdir/$test_name.generated.norm"
+    expected_raw="$tmpdir/$test_name.expected.raw"
+    expected_norm="$tmpdir/$test_name.expected.norm"
+
+    echo "Checking $test_name"
+    ./runme "$test_file" "$generated_asm"
+    run_simulator "$generated_asm" "$generated_raw"
+    normalize_sim_output "$generated_raw" "$generated_norm"
+
+    if [[ -f "outputs/$test_name.asm" ]]; then
+        run_simulator "outputs/$test_name.asm" "$expected_raw"
+        normalize_sim_output "$expected_raw" "$expected_norm"
+    elif [[ -f "tests/expected/$test_name.out" ]]; then
+        cp "tests/expected/$test_name.out" "$expected_norm"
+    else
+        echo "FAILED: no expected output configured for $test_name" >&2
+        failures=$((failures + 1))
+        continue
+    fi
+
+    if ! diff -u "$expected_norm" "$generated_norm"; then
+        echo "FAILED: semantic mismatch for $test_name" >&2
+        failures=$((failures + 1))
+    fi
 done
 
-rm proper.out interp_test.out
+if [[ $failures -ne 0 ]]; then
+    echo "Semantic regression test failed: $failures test(s) failed" >&2
+    exit 1
+fi
 
+echo "Semantic regression test passed for all $(find tests -maxdepth 1 -name 'test*.uC' | wc -l) test programs."

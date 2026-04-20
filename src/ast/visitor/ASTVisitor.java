@@ -12,6 +12,8 @@ public interface ASTVisitor<R> {
 	R visit(BinaryOpNode node);
 	R visit(UnaryOpNode node);
 	R visit(AssignNode node);
+	R visit(EmptyStatementNode node);
+	R visit(BlockNode node);
 	R visit(StatementListNode node);
 	R visit(ReadNode node);
 	R visit(WriteNode node);
@@ -19,5 +21,8 @@ public interface ASTVisitor<R> {
 	R visit(WhileNode node);
 	R visit(ReturnNode node);
 	R visit(CondNode node);
+	R visit(LogicalAndNode node);
+	R visit(LogicalOrNode node);
+	R visit(LogicalNotNode node);
 
 }

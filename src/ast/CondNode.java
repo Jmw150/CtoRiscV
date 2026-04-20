@@ -12,7 +12,7 @@ import ast.visitor.ASTVisitor;
  * 
  * It also keeps track of the comparison operation
  */
-public class CondNode implements ASTNode {
+public class CondNode implements ConditionNode {
 
 	public enum OpType {
 		EQ,

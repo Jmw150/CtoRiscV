@@ -1,6 +1,7 @@
 package ast;
 
 import ast.visitor.ASTVisitor;
+import compiler.Scope;
 
 /**
  * Node for binary expressions
@@ -20,7 +21,8 @@ public class BinaryOpNode extends ExpressionNode {
 		ADD,
 		SUB,
 		MUL,
-		DIV
+		DIV,
+		REM
 	}
 	
 	private ExpressionNode left;
@@ -31,7 +33,11 @@ public class BinaryOpNode extends ExpressionNode {
 		this.setLeft(left);
 		this.setRight(right);
 		this.setOp(getOpFromString(op));
-		this.setType(left.getType()); //This node inherits its type from the left child
+		if (left.getType() == Scope.Type.FLOAT || right.getType() == Scope.Type.FLOAT) {
+			this.setType(Scope.Type.FLOAT);
+		} else {
+			this.setType(Scope.Type.INT);
+		}
 	}
 		
 	private OpType getOpFromString(String s) {
@@ -40,6 +46,7 @@ public class BinaryOpNode extends ExpressionNode {
 		case "-" : return OpType.SUB;
 		case "/" : return OpType.DIV;
 		case "*" : return OpType.MUL;
+		case "%" : return OpType.REM;
 		default : throw new Error ("Unrecognized op type");
 		}
 	}

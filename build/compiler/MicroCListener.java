@@ -125,6 +125,16 @@ public interface MicroCListener extends ParseTreeListener {
 	 */
 	void exitBase_stmt(MicroCParser.Base_stmtContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link MicroCParser#local_var_decl}.
+	 * @param ctx the parse tree
+	 */
+	void enterLocal_var_decl(MicroCParser.Local_var_declContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link MicroCParser#local_var_decl}.
+	 * @param ctx the parse tree
+	 */
+	void exitLocal_var_decl(MicroCParser.Local_var_declContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link MicroCParser#read_stmt}.
 	 * @param ctx the parse tree
 	 */
@@ -195,6 +205,16 @@ public interface MicroCListener extends ParseTreeListener {
 	 */
 	void exitWhile_stmt(MicroCParser.While_stmtContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link MicroCParser#block_stmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterBlock_stmt(MicroCParser.Block_stmtContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link MicroCParser#block_stmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitBlock_stmt(MicroCParser.Block_stmtContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link MicroCParser#primary}.
 	 * @param ctx the parse tree
 	 */
@@ -244,6 +264,26 @@ public interface MicroCListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitCond(MicroCParser.CondContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link MicroCParser#and_cond}.
+	 * @param ctx the parse tree
+	 */
+	void enterAnd_cond(MicroCParser.And_condContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link MicroCParser#and_cond}.
+	 * @param ctx the parse tree
+	 */
+	void exitAnd_cond(MicroCParser.And_condContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link MicroCParser#not_cond}.
+	 * @param ctx the parse tree
+	 */
+	void enterNot_cond(MicroCParser.Not_condContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link MicroCParser#not_cond}.
+	 * @param ctx the parse tree
+	 */
+	void exitNot_cond(MicroCParser.Not_condContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link MicroCParser#cmpop}.
 	 * @param ctx the parse tree

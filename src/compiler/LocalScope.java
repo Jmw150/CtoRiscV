@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 	
 	static final private int startingLocalsOffset = -4;  //start local var offset with room for old frame pointer
 	static final private int startingArgsOffset = 8; //start argument offset with room for old return address and return value
+	static private int nextStorageAddress = 0x30000000;
 
 	private int localsOffset;
 	private int argsOffset;
@@ -33,18 +34,18 @@ import java.util.LinkedHashMap;
 	}
 
 	protected SymbolTableEntry genArgument(Scope.Type type, String name) {
-		int addr = argsOffset;
+		int addr = nextStorageAddress;
+		nextStorageAddress += 4;
 		SymbolTableEntry ste = new SymbolTableEntry(type, name, addr, true);
-		addr += 4;
 		numArgs++;
 		return ste;
 	}
 
 	@Override
 	protected SymbolTableEntry genSymbol(compiler.Scope.Type type, String name) {
-		int addr = localsOffset;
+		int addr = nextStorageAddress;
+		nextStorageAddress += 4;
 		SymbolTableEntry ste = new SymbolTableEntry(type, name, addr, true);
-		localsOffset -= 4;
 		numLocals++;
 		return ste;
 	}

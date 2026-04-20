@@ -1,10 +1,35 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-make
+set -euo pipefail
 
-for i in {0..10}
-do
-    echo "test$i.asm"
-    ./runme tests/test$i.uC testout.out
-    diff testout.out outputs/test$i.asm
+tmpdir=$(mktemp -d)
+trap 'rm -rf "$tmpdir"' EXIT
+
+make compiler >/dev/null
+
+failures=0
+
+for test_file in tests/test*.uC; do
+    test_name=$(basename "$test_file" .uC)
+    asm_file="$tmpdir/$test_name.asm"
+
+    echo "Compiling $test_name"
+    if ! ./runme "$test_file" "$asm_file"; then
+        echo "FAILED: compiler could not compile $test_name" >&2
+        failures=$((failures + 1))
+        continue
+    fi
+
+    if [[ ! -s "$asm_file" ]]; then
+        echo "FAILED: compiler produced empty assembly for $test_name" >&2
+        failures=$((failures + 1))
+        continue
+    fi
 done
+
+if [[ $failures -ne 0 ]]; then
+    echo "Syntax/compile smoke test failed: $failures test(s) failed" >&2
+    exit 1
+fi
+
+echo "Syntax/compile smoke test passed for all $(find tests -maxdepth 1 -name 'test*.uC' | wc -l) test programs."

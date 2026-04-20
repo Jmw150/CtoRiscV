@@ -15,11 +15,11 @@ import ast.visitor.ASTVisitor;
  */
 public class IfStatementNode implements StatementNode {
 	
-	private CondNode condExpr;
+	private ConditionNode condExpr;
 	private StatementListNode thenBlock;
 	private StatementListNode elseBlock;
 
-	public IfStatementNode(CondNode cond, StatementListNode tlist,
+	public IfStatementNode(ConditionNode cond, StatementListNode tlist,
 			StatementListNode elist) {
 		setCondExpr(cond);
 		setThenBlock(tlist);
@@ -31,11 +31,11 @@ public class IfStatementNode implements StatementNode {
 		return visitor.visit(this);
 	}
 
-	public CondNode getCondExpr() {
+	public ConditionNode getCondExpr() {
 		return condExpr;
 	}
 
-	private void setCondExpr(CondNode condExpr) {
+	private void setCondExpr(ConditionNode condExpr) {
 		this.condExpr = condExpr;
 	}
 

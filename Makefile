@@ -4,6 +4,8 @@ SRC_DIRS := src/ast/*.java src/ast/visitor/*.java src/compiler/*.java src/assemb
 
 all: compiler
 
+.PHONY: all compiler clean test test-syntax test-semantics
+
 compiler:
 	rm -rf build
 	mkdir build
@@ -11,6 +13,14 @@ compiler:
 	java -cp $(LIB_ANTLR) org.antlr.v4.Tool -o build/compiler $(ANTLR_SCRIPT)
 	# compile semantic actions onto antlr made parser
 	javac -cp $(LIB_ANTLR) -d classes $(SRC_DIRS) build/compiler/*.java
+
+test: test-syntax test-semantics
+
+test-syntax: compiler
+	./trysyntax
+
+test-semantics: compiler
+	./trysemantics
 
 clean:
 	rm -rf classes build

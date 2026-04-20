@@ -15,6 +15,7 @@ public class SymbolTable {
 
 	public SymbolTable(int stringBase, int globalBase) {
 		setGlobalScope(new GlobalScope(stringBase, globalBase));
+		errors = new LinkedList<String>();
 
 		scopeStack = new Stack<Scope>();
 		scopeStack.push(getGlobalScope());

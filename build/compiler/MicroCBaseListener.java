@@ -155,6 +155,18 @@ public class MicroCBaseListener implements MicroCListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterLocal_var_decl(MicroCParser.Local_var_declContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitLocal_var_decl(MicroCParser.Local_var_declContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterRead_stmt(MicroCParser.Read_stmtContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -239,6 +251,18 @@ public class MicroCBaseListener implements MicroCListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterBlock_stmt(MicroCParser.Block_stmtContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitBlock_stmt(MicroCParser.Block_stmtContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterPrimary(MicroCParser.PrimaryContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -294,6 +318,30 @@ public class MicroCBaseListener implements MicroCListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitCond(MicroCParser.CondContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAnd_cond(MicroCParser.And_condContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAnd_cond(MicroCParser.And_condContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterNot_cond(MicroCParser.Not_condContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitNot_cond(MicroCParser.Not_condContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

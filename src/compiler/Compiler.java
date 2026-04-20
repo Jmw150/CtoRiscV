@@ -20,8 +20,11 @@ public class Compiler {
 	public Compiler() { }
 
 	public static void main(String args[]) {
-		
-		
+		if (args.length != 1) {
+			System.err.println("usage: java -cp classes:lib/antlr-4.8-complete.jar compiler.Compiler <input.uC>");
+			System.exit(1);
+		}
+
 		try {
 			MicroCLexer lexer = new MicroCLexer(CharStreams.fromFileName(args[0]));
 			

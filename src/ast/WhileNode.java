@@ -12,10 +12,10 @@ import ast.visitor.ASTVisitor;
  */
 public class WhileNode implements StatementNode {
 
-	private CondNode cond;
+	private ConditionNode cond;
 	private StatementListNode slist;
 	
-	public WhileNode(CondNode cond, StatementListNode slist) {
+	public WhileNode(ConditionNode cond, StatementListNode slist) {
 		this.setCond(cond);
 		this.setSlist(slist);
 	}
@@ -25,11 +25,11 @@ public class WhileNode implements StatementNode {
 		return visitor.visit(this);
 	}
 
-	public CondNode getCond() {
+	public ConditionNode getCond() {
 		return cond;
 	}
 
-	private void setCond(CondNode cond) {
+	private void setCond(ConditionNode cond) {
 		this.cond = cond;
 	}
 

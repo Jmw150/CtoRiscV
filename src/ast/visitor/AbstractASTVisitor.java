@@ -6,7 +6,12 @@ import java.util.List;
 import ast.ASTNode;
 import ast.AssignNode;
 import ast.BinaryOpNode;
+import ast.BlockNode;
+import ast.EmptyStatementNode;
 import ast.IfStatementNode;
+import ast.LogicalAndNode;
+import ast.LogicalNotNode;
+import ast.LogicalOrNode;
 import ast.WhileNode;
 import ast.IntLitNode;
 import ast.ReadNode;
@@ -90,6 +95,19 @@ public abstract class AbstractASTVisitor<R> implements ASTVisitor<R> {
 	}
 
 	@Override
+	public R visit(EmptyStatementNode node) {
+		preprocess(node);
+		return postprocess(node);
+	}
+
+	@Override
+	public R visit(BlockNode node) {
+		preprocess(node);
+		R statements = node.getStatements().accept(this);
+		return postprocess(node, statements);
+	}
+
+	@Override
 	public R visit(StatementListNode node) {
 		preprocess(node);
 		List<R> rs = new LinkedList<R>();
@@ -120,6 +138,29 @@ public abstract class AbstractASTVisitor<R> implements ASTVisitor<R> {
 		R left = node.getLeft().accept(this);
 		R right = node.getRight().accept(this);
 		return postprocess(node, left, right);
+	}
+
+	@Override
+	public R visit(LogicalAndNode node) {
+		preprocess(node);
+		R left = node.getLeft().accept(this);
+		R right = node.getRight().accept(this);
+		return postprocess(node, left, right);
+	}
+
+	@Override
+	public R visit(LogicalOrNode node) {
+		preprocess(node);
+		R left = node.getLeft().accept(this);
+		R right = node.getRight().accept(this);
+		return postprocess(node, left, right);
+	}
+
+	@Override
+	public R visit(LogicalNotNode node) {
+		preprocess(node);
+		R child = node.getChild().accept(this);
+		return postprocess(node, child);
 	}
 
 	@Override
@@ -173,6 +214,14 @@ public abstract class AbstractASTVisitor<R> implements ASTVisitor<R> {
 		return null;
 	}
 
+	protected R postprocess(EmptyStatementNode node) {
+		return null;
+	}
+
+	protected R postprocess(BlockNode node, R statements) {
+		return null;
+	}
+
 	protected R postprocess(StatementListNode node, List<R> statements) {
 		return null;
 	}
@@ -186,6 +235,18 @@ public abstract class AbstractASTVisitor<R> implements ASTVisitor<R> {
 	}
 
 	protected R postprocess(CondNode node, R left, R right) {
+		return null;
+	}
+
+	protected R postprocess(LogicalAndNode node, R left, R right) {
+		return null;
+	}
+
+	protected R postprocess(LogicalOrNode node, R left, R right) {
+		return null;
+	}
+
+	protected R postprocess(LogicalNotNode node, R child) {
 		return null;
 	}
 
@@ -225,6 +286,14 @@ public abstract class AbstractASTVisitor<R> implements ASTVisitor<R> {
 		return;
 	}
 
+	protected void preprocess(EmptyStatementNode node) {
+		return;
+	}
+
+	protected void preprocess(BlockNode node) {
+		return;
+	}
+
 	protected void preprocess(StatementListNode node) {
 		return;
 	}
@@ -238,6 +307,18 @@ public abstract class AbstractASTVisitor<R> implements ASTVisitor<R> {
 	}
 
 	protected void preprocess(CondNode node) {
+		return;
+	}
+
+	protected void preprocess(LogicalAndNode node) {
+		return;
+	}
+
+	protected void preprocess(LogicalOrNode node) {
+		return;
+	}
+
+	protected void preprocess(LogicalNotNode node) {
 		return;
 	}
 

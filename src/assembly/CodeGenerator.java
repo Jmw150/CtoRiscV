@@ -165,40 +165,47 @@ public class CodeGenerator extends AbstractASTVisitor<CodeObject> {
             }
         }
 
-        if (left.getType() == Scope.Type.INT)
+        if (node.getType() == Scope.Type.FLOAT) {
+            left_reg = promoteRegisterIfNeeded(co, left_reg, left.getType(), Scope.Type.FLOAT);
+            right_reg = promoteRegisterIfNeeded(co, right_reg, right.getType(), Scope.Type.FLOAT);
+        }
+
+        if (node.getType() == Scope.Type.INT)
             return_reg = generateTemp(Scope.Type.INT);
         else
             return_reg = generateTemp(Scope.Type.FLOAT);
         switch (node.getOp())
         {
             case ADD : 
-                    // single op makes float, for now
-                    if (left.getType() == Scope.Type.FLOAT ||
-                        right.getType() == Scope.Type.FLOAT)
+                    if (node.getType() == Scope.Type.FLOAT)
                         co.code.add(new FAdd(left_reg, right_reg, return_reg));
                     else
                         co.code.add(new Add(left_reg, right_reg, return_reg));
                     break;
             case SUB : 
-                    if (left.getType() == Scope.Type.FLOAT ||
-                        right.getType() == Scope.Type.FLOAT)
+                    if (node.getType() == Scope.Type.FLOAT)
                         co.code.add(new FSub(left_reg, right_reg, return_reg));
                     else
                         co.code.add(new Sub(left_reg, right_reg, return_reg));
                     break;
             case MUL : 
-                    if (left.getType() == Scope.Type.FLOAT ||
-                        right.getType() == Scope.Type.FLOAT)
+                    if (node.getType() == Scope.Type.FLOAT)
                         co.code.add(new FMul(left_reg, right_reg, return_reg));
                     else
                         co.code.add(new Mul(left_reg, right_reg, return_reg));
                     break;
             case DIV : 
-                    if (left.getType() == Scope.Type.FLOAT ||
-                        right.getType() == Scope.Type.FLOAT)
+                    if (node.getType() == Scope.Type.FLOAT)
                         co.code.add(new FDiv(left_reg, right_reg, return_reg));
                     else
                         co.code.add(new Div(left_reg, right_reg, return_reg));
+                    break;
+            case REM :
+                    if (node.getType() == Scope.Type.FLOAT) {
+                        throw new Error("Remainder is only supported for integer operands");
+                    } else {
+                        co.code.add(new Rem(left_reg, right_reg, return_reg));
+                    }
                     break;
             default :
                     System.out.println("binary op failed:"+node.toString());
@@ -312,10 +319,12 @@ public class CodeGenerator extends AbstractASTVisitor<CodeObject> {
                 co.code.add(new Lw(right_reg, right.temp, "0"));
             }
         }
-        else
+		else
         {
             co.code.addAll(right.code);
         }
+
+        right_reg = promoteRegisterIfNeeded(co, right_reg, right.getType(), left.getType());
 
         /*
         }
@@ -337,7 +346,19 @@ public class CodeGenerator extends AbstractASTVisitor<CodeObject> {
 		//co.temp = right.getDest(); //temp is in destination of li
 		co.type = node.getType();
 		
+			return co;
+		}
+
+	@Override
+	protected CodeObject postprocess(EmptyStatementNode node) {
+		CodeObject co = new CodeObject();
+		co.type = null;
 		return co;
+	}
+
+	@Override
+	protected CodeObject postprocess(BlockNode node, CodeObject statements) {
+		return statements;
 	}
 
 	/**
@@ -595,6 +616,13 @@ public class CodeGenerator extends AbstractASTVisitor<CodeObject> {
                 co.code.add(new Flw(right_reg, right.temp, "0"));
             }
         }
+
+        Scope.Type comparisonType = left.getType();
+        if (left.getType() == Scope.Type.FLOAT || right.getType() == Scope.Type.FLOAT) {
+            comparisonType = Scope.Type.FLOAT;
+        }
+        left_reg = promoteRegisterIfNeeded(co, left_reg, left.getType(), comparisonType);
+        right_reg = promoteRegisterIfNeeded(co, right_reg, right.getType(), comparisonType);
 		
         // case float
         //// negation as preprocess
@@ -610,8 +638,7 @@ public class CodeGenerator extends AbstractASTVisitor<CodeObject> {
         switch (node.getReversedOp())
         {
             case EQ: 
-                if (left.getType() == Scope.Type.FLOAT ||
-                    right.getType() == Scope.Type.FLOAT)
+                if (comparisonType == Scope.Type.FLOAT)
                 {
                     co.code.add(new Feq(left_reg, right_reg, return_reg));
                     co.code.add(new Bne(return_reg, "x0", co.tag));
@@ -622,8 +649,7 @@ public class CodeGenerator extends AbstractASTVisitor<CodeObject> {
                 }
                 break;
             case NE: 
-                if (left.getType() == Scope.Type.FLOAT ||
-                    right.getType() == Scope.Type.FLOAT)
+                if (comparisonType == Scope.Type.FLOAT)
                 {
                     co.code.add(new Feq(left_reg, right_reg, return_reg));
                     co.code.add(new Beq(return_reg, "x0", co.tag));
@@ -634,8 +660,7 @@ public class CodeGenerator extends AbstractASTVisitor<CodeObject> {
                 }
                 break;
             case LT: 
-                if (left.getType() == Scope.Type.FLOAT ||
-                    right.getType() == Scope.Type.FLOAT)
+                if (comparisonType == Scope.Type.FLOAT)
                 {
                     co.code.add(new Flt(left_reg, right_reg, return_reg)); 
                     co.code.add(new Bne(return_reg, "x0", co.tag));
@@ -646,8 +671,7 @@ public class CodeGenerator extends AbstractASTVisitor<CodeObject> {
                 }
                 break;
             case LE: 
-                if (left.getType() == Scope.Type.FLOAT ||
-                    right.getType() == Scope.Type.FLOAT)
+                if (comparisonType == Scope.Type.FLOAT)
                 {
                     co.code.add(new Fle(left_reg, right_reg, return_reg));
                     co.code.add(new Bne(return_reg, "x0", co.tag));
@@ -659,8 +683,7 @@ public class CodeGenerator extends AbstractASTVisitor<CodeObject> {
                 }
                 break;
             case GT: 
-                if (left.getType() == Scope.Type.FLOAT ||
-                    right.getType() == Scope.Type.FLOAT)
+                if (comparisonType == Scope.Type.FLOAT)
                 {
                     co.code.add(new Flt(right_reg, left_reg, return_reg));
                     co.code.add(new Bne(return_reg, "x0", co.tag));
@@ -672,8 +695,7 @@ public class CodeGenerator extends AbstractASTVisitor<CodeObject> {
                 }
                 break;
             case GE: 
-                if (left.getType() == Scope.Type.FLOAT ||
-                    right.getType() == Scope.Type.FLOAT)
+                if (comparisonType == Scope.Type.FLOAT)
                 {
                     co.code.add(new Fle(right_reg, left_reg, return_reg));
                     co.code.add(new Bne(return_reg, "x0", co.tag));
@@ -688,11 +710,65 @@ public class CodeGenerator extends AbstractASTVisitor<CodeObject> {
 
         co.lval = false; //co holds an rval -- data
 		co.temp = return_reg; 
-        if (left.getType() == Scope.Type.FLOAT)
+        if (comparisonType == Scope.Type.FLOAT)
 		    co.type = Scope.Type.FLOAT;
         else
 		    co.type = Scope.Type.INT;
 
+        return co;
+		}
+
+	@Override
+	protected CodeObject postprocess(LogicalAndNode node, CodeObject left, CodeObject right) {
+		CodeObject co = new CodeObject();
+        String falseLabel = generateElseLabel();
+        String endLabel = generateOutLabel();
+
+        co.code.addAll(left.code);
+        co.code.addAll(right.code);
+        co.code.add(new J(endLabel));
+        co.code.add(new Label(left.tag));
+        co.code.add(new J(falseLabel));
+        co.code.add(new Label(right.tag));
+        co.code.add(new J(falseLabel));
+        co.code.add(new Label(endLabel));
+        co.tag = falseLabel;
+        co.type = Scope.Type.INT;
+        co.lval = false;
+        return co;
+	}
+
+	@Override
+	protected CodeObject postprocess(LogicalOrNode node, CodeObject left, CodeObject right) {
+		CodeObject co = new CodeObject();
+        String falseLabel = generateElseLabel();
+        String endLabel = generateOutLabel();
+
+        co.code.addAll(left.code);
+        co.code.add(new J(endLabel));
+        co.code.add(new Label(left.tag));
+        co.code.addAll(right.code);
+        co.code.add(new J(endLabel));
+        co.code.add(new Label(right.tag));
+        co.code.add(new J(falseLabel));
+        co.code.add(new Label(endLabel));
+        co.tag = falseLabel;
+        co.type = Scope.Type.INT;
+        co.lval = false;
+        return co;
+	}
+
+	@Override
+	protected CodeObject postprocess(LogicalNotNode node, CodeObject child) {
+		CodeObject co = new CodeObject();
+        String falseLabel = generateElseLabel();
+
+        co.code.addAll(child.code);
+        co.code.add(new J(falseLabel));
+        co.code.add(new Label(child.tag));
+        co.tag = falseLabel;
+        co.type = Scope.Type.INT;
+        co.lval = false;
         return co;
 	}
 
@@ -887,8 +963,22 @@ public class CodeGenerator extends AbstractASTVisitor<CodeObject> {
             }
         }
 
-		return co;
-	}
+			return co;
+		}
+
+    private String promoteRegisterIfNeeded(CodeObject co, String reg, Scope.Type fromType, Scope.Type targetType) {
+        if (fromType == targetType) {
+            return reg;
+        }
+
+        if (fromType == Scope.Type.INT && targetType == Scope.Type.FLOAT) {
+            String promoted = generateTemp(Scope.Type.FLOAT);
+            co.code.add(new IMovF(reg, promoted));
+            return promoted;
+        }
+
+        throw new Error("Unsupported implicit conversion from " + fromType + " to " + targetType);
+    }
 
 	/**
 	 * Take a code object that holds just a variable and turn it into a code object

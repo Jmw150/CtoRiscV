@@ -54,8 +54,16 @@ base_type returns [Scope.Type t] : 'int' {$t = Scope.Type.INT;}
 
 
 /* Functions */
-function returns [StatementListNode node] : 'int' 'main' '(' ')' '{' statements '}' 
-    {$node = $statements.node;};
+function returns [StatementListNode node] : 'int' 'main' '(' ')'
+    {
+        st.pushScope();
+        st.currentScope().setName("main");
+    }
+    '{' statements '}'
+    {
+        $node = $statements.node;
+        st.popScope();
+    };
 
 		 		 
 /* Statements */
@@ -63,13 +71,21 @@ statements returns [StatementListNode node] : statement s=statements {$node = ne
            | /* empty */ {$node = new StatementListNode();};
 			
 statement returns [StatementNode node] : base_stmt ';' {$node = $base_stmt.node;}
+          | local_var_decl ';' {$node = $local_var_decl.node;}
 		  | if_stmt {$node = $if_stmt.node;}
-		  | while_stmt {$node = $while_stmt.node;};
+		  | while_stmt {$node = $while_stmt.node;}
+          | block_stmt {$node = $block_stmt.node;};
 		  
 base_stmt returns [StatementNode node] : assign_stmt {$node = $assign_stmt.node;}
           | read_stmt {$node = $read_stmt.node;} 
           | print_stmt {$node = $print_stmt.node;} 
           | return_stmt {$node = $return_stmt.node;};
+
+local_var_decl returns [StatementNode node] : base_type id
+    {
+        st.addVariable($base_type.t, $id.text);
+        $node = new EmptyStatementNode();
+    };
 		 
 read_stmt returns [ReadNode node] : 'read' '(' id ')' {$node = new ReadNode(new VarNode($id.text));} ;
 
@@ -79,14 +95,28 @@ return_stmt returns [ReturnNode node] : 'return' expr {$node = new ReturnNode($e
 
 assign_stmt returns [AssignNode node] : id '=' expr {$node = new AssignNode(new VarNode($id.text), $expr.node);};
 
-if_stmt returns [IfStatementNode node] : 'if' '(' cond ')' '{' statements '}' else_stmt 
-    {$node = new IfStatementNode($cond.node, $statements.node, $else_stmt.node);};
+if_stmt returns [IfStatementNode node] : 'if' '(' cond ')' '{'
+    { st.pushScope(); }
+    thenStatements=statements '}'
+    { st.popScope(); }
+    else_stmt 
+    {$node = new IfStatementNode($cond.node, $thenStatements.node, $else_stmt.node);};
 
-else_stmt returns [StatementListNode node] : 'else' '{' statements '}' {$node = $statements.node;}
+else_stmt returns [StatementListNode node] : 'else' '{'
+            { st.pushScope(); }
+            elseStatements=statements '}'
+            { $node = $elseStatements.node; st.popScope(); }
           | /* empty */ {$node = new StatementListNode();};
 
-while_stmt returns [WhileNode node] : 'while' '(' cond ')' '{' statements '}'
-    {$node = new WhileNode($cond.node, $statements.node);};
+while_stmt returns [WhileNode node] : 'while' '(' cond ')' '{'
+    { st.pushScope(); }
+    statements '}'
+    { $node = new WhileNode($cond.node, $statements.node); st.popScope(); };
+
+block_stmt returns [BlockNode node] : '{'
+    { st.pushScope(); }
+    statements '}'
+    { $node = new BlockNode($statements.node); st.popScope(); };
 	
  
 /* Expressions */
@@ -107,11 +137,22 @@ expr returns [ExpressionNode node] : term {$node = $term.node;}
 term returns [ExpressionNode node] : primary {$node = $primary.node;}
      | t1 = term mulop primary { $node = new BinaryOpNode($t1.node, $primary.node, $mulop.text);  }; 
 
-cond returns [CondNode node] : e1=expr cmpop e2=expr {$node = new CondNode($e1.node, $e2.node, $cmpop.text);};
+cond returns [ConditionNode node]
+    : c1=cond '||' c2=and_cond {$node = new LogicalOrNode($c1.node, $c2.node);}
+    | and_cond {$node = $and_cond.node;};
+
+and_cond returns [ConditionNode node]
+    : c1=and_cond '&&' c2=not_cond {$node = new LogicalAndNode($c1.node, $c2.node);}
+    | not_cond {$node = $not_cond.node;};
+
+not_cond returns [ConditionNode node]
+    : '!' not_cond {$node = new LogicalNotNode($not_cond.node);}
+    | '(' cond ')' {$node = $cond.node;}
+    | e1=expr cmpop e2=expr {$node = new CondNode($e1.node, $e2.node, $cmpop.text);};
 
 cmpop : '<' | '<=' | '>=' | '==' | '!=' | '>' ;
 
-mulop : '*' | '/' ;
+mulop : '*' | '/' | '%' ;
 
 addop : '+' | '-' ;
 

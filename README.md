@@ -35,14 +35,18 @@ The main compiler entry point is
 The grammar currently supports a deliberately small subset of C:
 
 - global `int` and `float` variable declarations
+- local `int` and `float` declarations inside function and block scopes
 - global `string` declarations with string literals
 - a single `int main()` function
 - assignments
 - arithmetic expressions with `+`, `-`, `*`, `/`
+- integer remainder `%`
 - unary negation
 - integer and float literals
 - `if` / `else`
 - `while`
+- nested block statements `{ ... }`
+- boolean conditions with `&&`, `||`, `!`
 - comparisons: `<`, `<=`, `>`, `>=`, `==`, `!=`
 - `read(...)`
 - `print(...)`
@@ -96,6 +100,30 @@ To clean generated build artifacts:
 make clean
 ```
 
+## Test
+
+There is now a simple project-level test entry point:
+
+```bash
+make test
+```
+
+This runs two layers of validation:
+
+1. `make test-syntax`
+   Compiles every `tests/test*.uC` program and checks that the compiler emits
+   non-empty assembly.
+2. `make test-semantics`
+   Runs the generated assembly through the bundled simulator and compares the
+   observable output against:
+   - reference assembly in `outputs/` for `test0` through `test10`
+   - checked-in expected stdout files in
+     [tests/expected](/home/jmw150/backup/code/projects/c_compiler/tests/expected)
+     for `test11` through `test20`
+
+The semantic checker normalizes away simulator banner lines and execution-cycle
+counts, so harmless timing differences do not cause false failures.
+
 ## Compile A Program
 
 Use the helper script:
@@ -112,6 +140,9 @@ java -cp classes:lib/antlr-4.8-complete.jar compiler.Compiler <input>
 
 and writes the emitted assembly to the output file you specify.
 
+`runme` now validates its arguments and will build the compiler automatically if
+the compiled classes are missing.
+
 ## Run The Generated Assembly
 
 You can execute emitted assembly with the bundled simulator:
@@ -127,14 +158,16 @@ The simulator is also used by the semantic regression script.
 Two helper scripts are included:
 
 - [trysyntax](/home/jmw150/backup/code/projects/c_compiler/trysyntax:1)
-  builds the compiler, compiles a set of sample programs, and diffs the
-  generated assembly against reference files in `outputs/`
+  builds the compiler and performs a compile smoke test across all sample
+  programs in `tests/`
 - [trysemantics](/home/jmw150/backup/code/projects/c_compiler/trysemantics:1)
-  builds the compiler, compiles sample programs, runs both the reference and
-  generated assembly through the simulator, and diffs their observable output
+  builds the compiler, compiles every sample program, runs the results through
+  the simulator, and compares normalized observable output against semantic
+  expectations
 
-Those scripts currently focus on `test0` through `test10`, even though the
-`tests/` directory contains additional sample inputs.
+The older exact-assembly diff workflow was useful for a compiler class, but it
+is too brittle for regular development because register allocation details and
+label naming can change without changing program behavior.
 
 ## Example MicroC Program
 
@@ -178,6 +211,7 @@ A few important limitations are worth stating directly:
 - the source language is a MicroC subset, not full C
 - the grammar only accepts `int main()` as the function form
 - the current tests and helper scripts are somewhat course-project flavored
+- exact assembly text is not a stable correctness signal
 - generated parser output and compiled classes are not treated as a polished
   packaging story
 
@@ -188,3 +222,7 @@ If this project is extended further, the most natural directions would be:
 - a cleaner CLI
 - broader regression coverage
 - clearer documentation of the target assembly conventions
+
+A more concrete feature-by-feature expansion roadmap now lives in
+[TODO.md](/home/jmw150/backup/code/projects/c_compiler/TODO.md:1), including
+proposed tests for each planned language feature.

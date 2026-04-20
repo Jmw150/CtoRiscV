@@ -32,29 +32,49 @@ The main compiler entry point is
 
 ## Supported Language Fragment
 
-The grammar currently supports a deliberately small subset of C:
+The grammar currently supports a deliberately small but now fairly usable
+subset of C:
 
-- global `int` and `float` variable declarations
-- local `int` and `float` declarations inside function and block scopes
+- global `int` and `float` variables
+- fixed-size array declarations such as `int a[4];`
 - global `string` declarations with string literals
-- a single `int main()` function
-- assignments
-- arithmetic expressions with `+`, `-`, `*`, `/`
-- integer remainder `%`
+- local `int` and `float` declarations inside function and nested block scopes
+- local declaration initializers such as `int x = 3;`
+- assignments to variables and array elements
+- arithmetic expressions with `+`, `-`, `*`, `/`, `%`
 - unary negation
 - integer and float literals
+- mixed `int`/`float` arithmetic with implicit promotion to `float`
+- mixed `int`/`float` comparisons
 - `if` / `else`
 - `while`
+- `for (init; cond; step)` loops, lowered internally to existing loop machinery
 - nested block statements `{ ... }`
 - boolean conditions with `&&`, `||`, `!`
 - comparisons: `<`, `<=`, `>`, `>=`, `==`, `!=`
 - `read(...)`
 - `print(...)`
 - `return expr`
+- `int main()` as the runtime entry point
+- small helper functions with one parameter and an expression-bodied `return`,
+  implemented through inline expansion
 
-This is not a full C compiler. In particular, the grammar and codebase are
-centered on a single-function MicroC language rather than general C with
-multiple functions, pointers, structs, arrays, or preprocessing.
+This is still not a full C compiler. In particular, it does not yet implement
+a general runtime calling convention, pointers, structs, preprocessing, or the
+broader semantics of full ISO C.
+
+## Current Semantics Notes
+
+A few choices are worth calling out explicitly:
+
+- helper functions are intentionally small-core and instructional: they are
+  parsed before `main` and expanded inline rather than compiled as general
+  callable procedures
+- arrays currently cover basic fixed-size declarations and indexed element
+  access, which is enough for simple programs and regression tests
+- local variables are currently allocated through a simple compiler-managed
+  storage model rather than a polished stack-frame implementation
+- `return` still behaves as program termination from `main`
 
 ## Repository Layout
 
@@ -119,10 +139,20 @@ This runs two layers of validation:
    - reference assembly in `outputs/` for `test0` through `test10`
    - checked-in expected stdout files in
      [tests/expected](/home/jmw150/backup/code/projects/c_compiler/tests/expected)
-     for `test11` through `test20`
+     for the newer semantic regression programs
 
 The semantic checker normalizes away simulator banner lines and execution-cycle
 counts, so harmless timing differences do not cause false failures.
+
+At the moment, `make test` passes for all active regression programs in
+`tests/`, including the newer coverage for:
+
+- float literal and mixed numeric behavior
+- local declarations and nested scopes
+- `%`, `&&`, `||`, and `!`
+- `for` loops
+- helper functions with one argument
+- basic array reads and writes
 
 ## Compile A Program
 
@@ -191,6 +221,25 @@ int main() {
 }
 ```
 
+Here is a second example using newer features:
+
+```c
+int a[4];
+
+int square(int x) {
+    return x * x;
+}
+
+int main() {
+    int i = 0;
+    for (i = 0; i < 4; i = i + 1) {
+        a[i] = square(i);
+        print(a[i]);
+    }
+    return 0;
+}
+```
+
 ## Current Character Of The Project
 
 This codebase has the feel of a compiler course project that grew into a
@@ -209,7 +258,10 @@ That makes it a good project for learning how a small compiler is structured.
 A few important limitations are worth stating directly:
 
 - the source language is a MicroC subset, not full C
-- the grammar only accepts `int main()` as the function form
+- `main` is still the only true runtime entry point
+- helper functions are inline-expanded rather than compiled with a full calling
+  convention
+- arrays are currently limited to basic fixed-size indexed access
 - the current tests and helper scripts are somewhat course-project flavored
 - exact assembly text is not a stable correctness signal
 - generated parser output and compiled classes are not treated as a polished

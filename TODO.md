@@ -251,6 +251,12 @@ Suggested test names:
 
 ### 1.5 `for` loops
 
+Status:
+
+- implemented by lowering `for (init; cond; step)` into an initializer plus an
+  ordinary `while`
+- covered by active regression `test37`
+
 Feature work:
 
 - parser support for `for (init; cond; step)`
@@ -274,10 +280,17 @@ This is the largest single jump from “MicroC” toward “real C”.
 
 ### 2.1 Multiple functions
 
+Status:
+
+- expression-bodied helper functions with one parameter are implemented via
+  parser-level inline expansion
+- covered by active regression `test39`
+
 Current gap:
 
-- grammar only allows a single `int main()`
-- return currently lowers directly to `HALT`
+- `main` is still the only emitted runtime entry point
+- `return` in `main` still lowers directly to `HALT`
+- this is not yet a full calling-convention implementation
 
 Feature work:
 
@@ -298,6 +311,11 @@ Suggested test names:
 - `test40_float_return_function.uC`
 
 ### 2.2 Parameters and arguments
+
+Status:
+
+- one-argument helper functions are supported through the inline-expansion path
+- covered by active regression `test41`
 
 Feature work:
 
@@ -343,6 +361,12 @@ Suggested test names:
 These move the compiler closer to recognizable C programming.
 
 ### 3.1 Arrays
+
+Status:
+
+- basic fixed-size array declarations and indexed element access are
+  implemented
+- covered by active regression `test45`
 
 Feature work:
 

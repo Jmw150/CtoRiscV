@@ -61,6 +61,33 @@ public class CodeGenerator extends AbstractASTVisitor<CodeObject> {
 		return co;
 	}
 
+	@Override
+	protected CodeObject postprocess(ArrayAccessNode node, CodeObject index) {
+		CodeObject co = new CodeObject();
+		String indexReg = index.temp;
+
+		co.code.addAll(index.code);
+		if (index.lval) {
+			indexReg = generateTemp(Scope.Type.INT);
+			co.code.add(new Lw(indexReg, index.temp, "0"));
+		}
+
+		String baseReg = generateTemp(Scope.Type.INT);
+		String scaleReg = generateTemp(Scope.Type.INT);
+		String offsetReg = generateTemp(Scope.Type.INT);
+		String addrReg = generateTemp(Scope.Type.INT);
+
+		co.code.add(new La(baseReg, String.valueOf(node.getSymbol().getAddress())));
+		co.code.add(new Li(scaleReg, "4"));
+		co.code.add(new Mul(indexReg, scaleReg, offsetReg));
+		co.code.add(new Add(baseReg, offsetReg, addrReg));
+
+		co.temp = addrReg;
+		co.type = node.getType();
+		co.lval = true;
+		return co;
+	}
+
 	/** Generate code for IntLiterals
 	 * 
 	 * Use load immediate instruction to do this.
@@ -301,9 +328,9 @@ public class CodeGenerator extends AbstractASTVisitor<CodeObject> {
 			left = generateAddrFromVariable(left);
             co.code.addAll(left.code);
 		}
-        else // pointer? Not ready for that yet
+        else
         {
-            System.out.println("assignment failed:"+node.toString());
+            co.code.addAll(left.code);
         }
         //Step 1a
 
@@ -465,19 +492,19 @@ public class CodeGenerator extends AbstractASTVisitor<CodeObject> {
 		} 
         
         // if INT, can be in-place or variable
-        if ((node.getWriteExpr().getType() == Scope.Type.INT) &&
+		if ((node.getWriteExpr().getType() == Scope.Type.INT) &&
             expr.lval == true)
         {
-			assert(expr.getSTE() != null);
-			
-			//Get the address of the variable
-			CodeObject addrCo = generateAddrFromVariable(expr);
-			co.code.addAll(addrCo.code);
-
             // load contents into a register
             String temp = generateTemp(Scope.Type.INT);
-            Instruction i = new Lw(temp, addrCo.temp, "0");
-            co.code.add(i);
+            if (expr.isVar()) {
+				CodeObject addrCo = generateAddrFromVariable(expr);
+				co.code.addAll(addrCo.code);
+				co.code.add(new Lw(temp, addrCo.temp, "0"));
+            } else {
+				co.code.addAll(expr.code);
+				co.code.add(new Lw(temp, expr.temp, "0"));
+            }
 
 			//Step 2:
 			Instruction write = new PutI(temp);
@@ -503,19 +530,19 @@ public class CodeGenerator extends AbstractASTVisitor<CodeObject> {
         }
 
         // if FLOAT, can be in-place or variable
-        if ((node.getWriteExpr().getType() == Scope.Type.FLOAT) &&
+		if ((node.getWriteExpr().getType() == Scope.Type.FLOAT) &&
             expr.lval == true)
         {
-			assert(expr.getSTE() != null);
-			
-			//Get the address of the variable
-			CodeObject addrCo = generateAddrFromVariable(expr);
-			co.code.addAll(addrCo.code);
-
             // load contents into a register
             String temp = generateTemp(Scope.Type.FLOAT);
-            Instruction i = new Flw(temp, addrCo.temp, "0");
-            co.code.add(i);
+            if (expr.isVar()) {
+				CodeObject addrCo = generateAddrFromVariable(expr);
+				co.code.addAll(addrCo.code);
+				co.code.add(new Flw(temp, addrCo.temp, "0"));
+            } else {
+				co.code.addAll(expr.code);
+				co.code.add(new Flw(temp, expr.temp, "0"));
+            }
 
 			//Step 2:
 			Instruction write = new PutF(temp);

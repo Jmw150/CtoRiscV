@@ -1,4 +1,4 @@
-/* Pending: function parameters and argument passing. */
+/* Regression: helper function with one argument. */
 int inc(int x) {
     return x + 1;
 }

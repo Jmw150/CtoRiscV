@@ -51,7 +51,14 @@ public abstract class Scope{
 		return retVal;
 	}
 
+	public ErrorType addArraySymbol(Type type, String name, int length) {
+		ErrorType retVal = checkSymbol(name);
+		table.put(name, genArraySymbol(type, name, length));
+		return retVal;
+	}
+
 	abstract protected SymbolTableEntry genSymbol(Type type, String name);
+	abstract protected ArraySymbolTableEntry genArraySymbol(Type type, String name, int length);
 	
 	public ErrorType addSymbol(Type type, String name, String value) {
 		ErrorType retVal = checkSymbol(name);
@@ -184,6 +191,29 @@ public abstract class Scope{
 
 		public void setValue(String value) {
 			this.value = value;
+		}
+	}
+
+	static public class ArraySymbolTableEntry extends SymbolTableEntry {
+
+		private int length;
+
+		public ArraySymbolTableEntry(Scope.Type type, String name, int address, int length, boolean isLocal) {
+			super(type, name, address, isLocal);
+			this.length = length;
+		}
+
+		public ArraySymbolTableEntry(Scope.Type type, String name, int address, int length) {
+			this(type, name, address, length, false);
+		}
+
+		public int getLength() {
+			return length;
+		}
+
+		@Override
+		public String toString() {
+			return super.toString() + " length " + length;
 		}
 	}
 

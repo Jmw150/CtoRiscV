@@ -51,6 +51,15 @@ import java.util.LinkedHashMap;
 	}
 
 	@Override
+	protected ArraySymbolTableEntry genArraySymbol(compiler.Scope.Type type, String name, int length) {
+		int addr = nextStorageAddress;
+		nextStorageAddress += 4 * length;
+		ArraySymbolTableEntry ste = new ArraySymbolTableEntry(type, name, addr, length, true);
+		numLocals += length;
+		return ste;
+	}
+
+	@Override
 	protected StringSymbolTableEntry genStringSymbol(compiler.Scope.Type type, String name, String value) {
 		throw new Error("Should never try to create a string symbol in a local scope");
 	}

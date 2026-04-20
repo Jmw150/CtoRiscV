@@ -5,6 +5,7 @@ import java.util.List;
 
 import ast.ASTNode;
 import ast.AssignNode;
+import ast.ArrayAccessNode;
 import ast.BinaryOpNode;
 import ast.BlockNode;
 import ast.EmptyStatementNode;
@@ -57,6 +58,13 @@ public abstract class AbstractASTVisitor<R> implements ASTVisitor<R> {
 	public R visit(VarNode node) {
 		preprocess(node);
 		return postprocess(node);
+	}
+
+	@Override
+	public R visit(ArrayAccessNode node) {
+		preprocess(node);
+		R index = node.getIndex().accept(this);
+		return postprocess(node, index);
 	}
 
 	@Override
@@ -194,6 +202,10 @@ public abstract class AbstractASTVisitor<R> implements ASTVisitor<R> {
 		return null;
 	}
 
+	protected R postprocess(ArrayAccessNode node, R index) {
+		return null;
+	}
+
 	protected R postprocess(IntLitNode node) {
 		return null;
 	}
@@ -263,6 +275,10 @@ public abstract class AbstractASTVisitor<R> implements ASTVisitor<R> {
 	}
 
 	protected void preprocess(VarNode node) {
+		return;
+	}
+
+	protected void preprocess(ArrayAccessNode node) {
 		return;
 	}
 

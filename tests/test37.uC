@@ -1,4 +1,4 @@
-/* Pending: simple for loop lowering. */
+/* Regression: simple for loop lowering via existing while semantics. */
 int i;
 
 int main() {

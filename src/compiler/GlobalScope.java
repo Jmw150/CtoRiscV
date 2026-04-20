@@ -25,6 +25,14 @@ public class GlobalScope extends Scope {
 	}
 
 	@Override
+	protected ArraySymbolTableEntry genArraySymbol(compiler.Scope.Type type, String name, int length) {
+		int addr = globalBase;
+		ArraySymbolTableEntry ste = new ArraySymbolTableEntry(type, name, addr, length, false);
+		globalBase += 4 * length;
+		return ste;
+	}
+
+	@Override
 	protected StringSymbolTableEntry genStringSymbol(compiler.Scope.Type type, String name, String value) {
 		int addr = stringBase;
 		StringSymbolTableEntry ste = new StringSymbolTableEntry(type, name, value, addr, false);

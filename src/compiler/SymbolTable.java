@@ -37,6 +37,12 @@ public class SymbolTable {
 	    processError(name, e);
 	}
 
+	public void addArray(Scope.Type type, String name, int length) {
+		assert(type != Scope.Type.STRING);
+		Scope.ErrorType e = currentScope().addArraySymbol(type, name, length);
+		processError(name, e);
+	}
+
 	public void addArgument(Scope.Type type, String name) {
 		assert(currentScope() instanceof LocalScope);
 

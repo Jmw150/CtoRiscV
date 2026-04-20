@@ -4,6 +4,8 @@
 
     import java.util.List;
     import java.util.LinkedList;
+    import java.util.Map;
+    import java.util.HashMap;
     import ast.*;
 
 
@@ -102,6 +104,30 @@ public class MicroCBaseListener implements MicroCListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitBase_type(MicroCParser.Base_typeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterHelper_functions(MicroCParser.Helper_functionsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitHelper_functions(MicroCParser.Helper_functionsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterHelper_function(MicroCParser.Helper_functionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitHelper_function(MicroCParser.Helper_functionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -246,6 +272,54 @@ public class MicroCBaseListener implements MicroCListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitWhile_stmt(MicroCParser.While_stmtContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterFor_stmt(MicroCParser.For_stmtContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFor_stmt(MicroCParser.For_stmtContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterFor_assign_opt(MicroCParser.For_assign_optContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFor_assign_opt(MicroCParser.For_assign_optContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterLvalue(MicroCParser.LvalueContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitLvalue(MicroCParser.LvalueContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterArray_access(MicroCParser.Array_accessContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitArray_access(MicroCParser.Array_accessContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

@@ -7,6 +7,7 @@ public interface ASTVisitor<R> {
 	R run(ASTNode node);
 	
 	R visit(VarNode node);
+	R visit(ArrayAccessNode node);
 	R visit(IntLitNode node);
 	R visit(FloatLitNode node);
 	R visit(BinaryOpNode node);

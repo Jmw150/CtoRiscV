@@ -1,4 +1,4 @@
-/* Pending: multiple functions and int return values. */
+/* Regression: simple helper function inlined into main. */
 int square(int x) {
     return x * x;
 }

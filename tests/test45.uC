@@ -1,4 +1,4 @@
-/* Pending: array declaration and indexing. */
+/* Regression: basic global array declaration and indexing. */
 int a[4];
 
 int main() {

@@ -4,6 +4,8 @@
 
     import java.util.List;
     import java.util.LinkedList;
+    import java.util.Map;
+    import java.util.HashMap;
     import ast.*;
 
 
@@ -84,6 +86,26 @@ public interface MicroCListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitBase_type(MicroCParser.Base_typeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link MicroCParser#helper_functions}.
+	 * @param ctx the parse tree
+	 */
+	void enterHelper_functions(MicroCParser.Helper_functionsContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link MicroCParser#helper_functions}.
+	 * @param ctx the parse tree
+	 */
+	void exitHelper_functions(MicroCParser.Helper_functionsContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link MicroCParser#helper_function}.
+	 * @param ctx the parse tree
+	 */
+	void enterHelper_function(MicroCParser.Helper_functionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link MicroCParser#helper_function}.
+	 * @param ctx the parse tree
+	 */
+	void exitHelper_function(MicroCParser.Helper_functionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link MicroCParser#function}.
 	 * @param ctx the parse tree
@@ -204,6 +226,46 @@ public interface MicroCListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitWhile_stmt(MicroCParser.While_stmtContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link MicroCParser#for_stmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterFor_stmt(MicroCParser.For_stmtContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link MicroCParser#for_stmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitFor_stmt(MicroCParser.For_stmtContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link MicroCParser#for_assign_opt}.
+	 * @param ctx the parse tree
+	 */
+	void enterFor_assign_opt(MicroCParser.For_assign_optContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link MicroCParser#for_assign_opt}.
+	 * @param ctx the parse tree
+	 */
+	void exitFor_assign_opt(MicroCParser.For_assign_optContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link MicroCParser#lvalue}.
+	 * @param ctx the parse tree
+	 */
+	void enterLvalue(MicroCParser.LvalueContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link MicroCParser#lvalue}.
+	 * @param ctx the parse tree
+	 */
+	void exitLvalue(MicroCParser.LvalueContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link MicroCParser#array_access}.
+	 * @param ctx the parse tree
+	 */
+	void enterArray_access(MicroCParser.Array_accessContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link MicroCParser#array_access}.
+	 * @param ctx the parse tree
+	 */
+	void exitArray_access(MicroCParser.Array_accessContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link MicroCParser#block_stmt}.
 	 * @param ctx the parse tree
